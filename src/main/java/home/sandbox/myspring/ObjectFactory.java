@@ -58,18 +58,18 @@ public class ObjectFactory {
     private <T> T configureProxyIfNeeded(T t) {
         Class<?> type = t.getClass();
         Set<Method> methods = ReflectionUtils.getMethods(type);
-        Map<String, DetachedMethod> invocationMap = new HashMap<>();
+        Map<String, AttachedMethod> invocationMap = new HashMap<>();
 
         boolean needProxy = false;
         for (Method originalMethod : methods) {
-            DetachedMethod defaultMethod = new DetachedMethod() {
+            AttachedMethod defaultMethod = new AttachedMethod() {
                 @Override
                 @SneakyThrows
-                public Object invoke(Object obj, Object[] args) {
-                    return originalMethod.invoke(obj, args);
+                public Object invoke(Object[] args) {
+                    return originalMethod.invoke(t, args);
                 }
             };
-            DetachedMethod newMethod = defaultMethod;
+            AttachedMethod newMethod = defaultMethod;
             for (ProxyConfigurator proxyConfigurator : proxyConfigurators) {
                 newMethod = proxyConfigurator.proxy(originalMethod, newMethod);
             }
@@ -89,7 +89,7 @@ public class ObjectFactory {
                 new InvocationHandler() {
                     @Override
                     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-                        return invocationMap.get(method.getName()).invoke(t, args);
+                        return invocationMap.get(method.getName()).invoke(args);
                     }
                 }
         );

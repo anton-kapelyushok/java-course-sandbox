@@ -4,13 +4,13 @@ import java.lang.reflect.Method;
 
 public class ProxyTestAnnotationProxyConfigurator implements ProxyConfigurator {
     @Override
-    public DetachedMethod proxy(Method originalMethod, DetachedMethod prev) {
+    public AttachedMethod proxy(Method originalMethod, AttachedMethod prev) {
         if (!originalMethod.isAnnotationPresent(ProxyTest.class)) {
             return prev;
         }
-        return (obj, args) -> {
+        return (args) -> {
             ProxyTestInvocationHandler.getInstance().call("ProxyTest" + originalMethod.getName());
-            return prev.invoke(obj, args);
+            return prev.invoke(args);
         };
     }
 }
