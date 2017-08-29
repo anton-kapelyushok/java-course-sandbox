@@ -60,42 +60,50 @@ public class ObjectFactory {
         Set<Method> methods = ReflectionUtils.getMethods(type);
         Map<String, AttachedMethod> invocationMap = new HashMap<>();
 
-        boolean needProxy = false;
+        T proxy = null;
         for (Method originalMethod : methods) {
-            AttachedMethod defaultMethod = new AttachedMethod() {
+            AttachedMethod newMethod = new AttachedMethod() {
                 @Override
                 @SneakyThrows
                 public Object invoke(Object[] args) {
                     return originalMethod.invoke(t, args);
                 }
             };
-            AttachedMethod newMethod = defaultMethod;
             for (ProxyConfigurator proxyConfigurator : proxyConfigurators) {
-                newMethod = proxyConfigurator.proxy(originalMethod, newMethod);
+                MethodProducer methodProducer = proxyConfigurator.proxy(type, originalMethod, newMethod);
+
+                if (methodProducer != null) {
+                    if (proxy == null) {
+                        proxy = createProxy(type, invocationMap);
+                    }
+                    newMethod = methodProducer.produce(t, proxy);
+                }
+
             }
-            if (defaultMethod != newMethod) {
-                needProxy = true;
-            }
-            invocationMap.put(originalMethod.getName(), newMethod);
+            invocationMap.put(getMethodKey(originalMethod), newMethod);
         }
 
-        if (!needProxy) {
+        if (proxy == null) {
             return t;
+        } else {
+            return proxy;
         }
+    }
 
+    private String getMethodKey(Method method) {
+        return method.getName() + Arrays.toString(method.getParameterTypes());
+    }
+
+    @SuppressWarnings("unchecked")
+    private <T> T createProxy(Class<?> type, Map<String, AttachedMethod> invocationMap) {
         return (T) Proxy.newProxyInstance(
                 type.getClassLoader(),
                 type.getInterfaces(),
-                new InvocationHandler() {
-                    @Override
-                    public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-                        return invocationMap.get(method.getName()).invoke(args);
-                    }
-                }
+                (proxy, method, args) -> invocationMap.get(getMethodKey(method)).invoke(args)
         );
     }
 
-
+    @SuppressWarnings("unchecked")
     private <T> void invokeInitMethod(Class<T> type, T t) throws IllegalAccessException, InvocationTargetException {
         Set<Method> methods = ReflectionUtils.getAllMethods(type, method -> method.isAnnotationPresent(PostConstruct.class));
         for (Method method : methods) {

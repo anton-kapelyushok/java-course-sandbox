@@ -15,22 +15,27 @@ public class ProxyConfiguratorTest {
         ProxyTestAnnotated object = ObjectFactory.getInstance().createObject(ProxyTestAnnotated.class);
         object.twoAnnotations();
         String calledWith = ProxyTestInvocationHandler.getInstance().lastCalledWith;
-        Assert.assertTrue(calledWith.contains("ProxyTesttwoAnnotations"));
-        Assert.assertTrue(calledWith.contains("AnotherProxyTesttwoAnnotations"));
+        Assert.assertTrue(calledWith.contains("twoAnnotations"));
+        Assert.assertTrue(calledWith.contains("AnotherProxyTest"));
+        Assert.assertTrue(calledWith.contains("ProxyTest"));
     }
 
     @Test
     public void testOnlyOneAnnotationProcessed() {
         ProxyTestAnnotated object = ObjectFactory.getInstance().createObject(ProxyTestAnnotated.class);
         object.oneAnnotation();
-        Assert.assertEquals("ProxyTestoneAnnotation", ProxyTestInvocationHandler.getInstance().lastCalledWith);
+        String calledWith = ProxyTestInvocationHandler.getInstance().lastCalledWith;
+        Assert.assertTrue(calledWith.contains("oneAnnotation"));
+        Assert.assertTrue(!calledWith.contains("AnotherProxyTest"));
+        Assert.assertTrue(calledWith.contains("ProxyTest"));
     }
 
     @Test
     public void testNoFunctionalityAddedWhenAnnotationIsMissing() {
         ProxyTestAnnotated object = ObjectFactory.getInstance().createObject(ProxyTestAnnotated.class);
         object.noAnnotation();
-        Assert.assertEquals("", ProxyTestInvocationHandler.getInstance().lastCalledWith);
+        Assert.assertEquals("noAnnotation", ProxyTestInvocationHandler.getInstance().lastCalledWith);
+
     }
 }
 

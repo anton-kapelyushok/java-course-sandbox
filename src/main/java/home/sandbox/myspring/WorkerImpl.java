@@ -11,4 +11,11 @@ public class WorkerImpl implements Worker {
     public void drinkBeer() {
         System.out.println("Пиво вкуснее чем работа!!!");
     }
+
+
+    @Override
+    @Benchmark
+    public void drinkBeer(int count) {
+        System.out.println("Пиво вкуснее чем работа в + " + count + " раза!!!");
+    }
 }

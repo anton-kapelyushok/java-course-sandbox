@@ -13,13 +13,15 @@ public class Main {
 
         ExerciseTemplate template1 = templateReader.readTemplate("d+a=c");
         ExerciseTemplate template2 = templateReader.readTemplate("a-b+c-d=e");
+        ExerciseTemplate template3 = templateReader.readTemplate("c/6+a/b=e");
 
         ExerciseGenerator generator1 = new FromTemplateGenerator(template1, variableGenerator);
         ExerciseGenerator generator2 = new FromTemplateGenerator(template2, variableGenerator);
+        ExerciseGenerator generator3 = new FromTemplateGenerator(template3, variableGenerator);
         System.out.println(generator1.generate());
         System.out.println(generator1.generate());
         System.out.println(generator1.generate());
         System.out.println(generator2.generate());
-        System.out.println(generator2.generate());
+        System.out.println(generator3.generate());
     }
 }

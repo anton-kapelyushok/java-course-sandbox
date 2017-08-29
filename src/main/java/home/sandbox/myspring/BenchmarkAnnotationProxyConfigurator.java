@@ -4,11 +4,11 @@ import java.lang.reflect.Method;
 
 public class BenchmarkAnnotationProxyConfigurator implements ProxyConfigurator {
     @Override
-    public AttachedMethod proxy(Method method, AttachedMethod prev) {
+    public MethodProducer proxy(Class<?> type, Method method, AttachedMethod prev) {
         if (!method.isAnnotationPresent(Benchmark.class)) {
-            return prev;
+            return null;
         }
-        return (args) -> {
+        return (object, proxy) -> (args) -> {
             long start = System.nanoTime();
             Object result = prev.invoke(args);
             long end = System.nanoTime();

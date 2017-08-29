@@ -3,20 +3,20 @@ package home.sandbox.myspring;
 public class ProxyTestAnnotatedImpl implements ProxyTestAnnotated {
     @Override
     public void noAnnotation() {
-
+        ProxyTestInvocationHandler.getInstance().call("noAnnotation");
     }
 
-    @ProxyTest
+    @ProxyTestAnnotation
     @Override
     public void oneAnnotation() {
-
+        ProxyTestInvocationHandler.getInstance().call("oneAnnotation");
     }
 
-    @ProxyTest
-    @AnotherProxyTest
+    @AnotherProxyTestAnnotation
+    @ProxyTestAnnotation
     @Override
     public void twoAnnotations() {
-
+        ProxyTestInvocationHandler.getInstance().call("twoAnnotations");
     }
 
 
